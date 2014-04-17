@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<style>
+body,h1,h2,h3,h4,h5,h6,p,form,ul,ol,li,dt,dl,dd,th,td,label,bottom,input,textarea{ margin:0;padding:0;}
+#gallery{
+	padding:20px;
+}
+#outerBox{
+	border:1px solid #000;
+	padding:10px 5px;
+	position:relative;
+}
+.arrow{
+	display:inline-block;
+	background:#000;
+	width:20px;
+	height:20px;
+	position:absolute;
+	cursor:pointer;
+}
+.arrow.fobid{
+	background:#999;
+}
+.arrow.lt{
+	left:5px;
+	bottom:30px;
+}
+.arrow.rt{
+	right:5px;
+	bottom:30px;
+}
+#innerBox{
+	border:1px solid #000;
+	padding:5px 0;
+	overflow:hidden;
+	position:relative;
+	height:50px;
+	left:35px;
+}
+#innerBox ul{
+	position:absolute;
+	left:5px;
+}
+#innerBox ul:after{content:"\20"; display:block; clear:both; height:0}
+#innerBox ul:after{*zoom:1}
+.eachPic a{
+	background:red;
+	display:inline-block;
+	width:50px;
+	height:50px;
+	color:#000;
+}
+.eachPic.green a{
+	background:green;
+}
+.eachPic.on a{
+	background:blue;
+}
+.eachPic{
+	float:left;
+	display:inline;
+	margin-right:10px;
+}
+.eachPic:last-child{
+	margin-right:0;
+}
+
+
+
+#screen{
+	width:100%;
+	background:#dfdfdf;
+	height:200px;
+	z-index:1;
+}
+#screen .middle,#screen .rt,#screen .lt{
+	float:left;
+	display:inline;
+	height:inherit;
+}
+#screen:after{content:"\20"; display:block; clear:both; height:0}
+#screen:after{*zoom:1}
+#screen .lt{width:25%; background:#666}
+#screen .rt{width:25%; background:#666}
+#screen .middle{width:50%;}
+#screen .middle{
+	text-align:center;
+	font-weight:bold;
+	font-size:18px;
+}
+</style>
+</head>
+
+<body>
+<div id="gallery">
+</div>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>
+//m为总共的方框数，n为可显示的方框数
+var Slider = function(containerID,m,n){
+	if(n>m){console.log('显示的方框数不可以大于总数！！');return false;}
+	this.container = $('#'+containerID);
+	this.num_all = m;
+	this.num_show = n;
+	this.threshold = 0;
+	this.direction = 'left';
+	this.init();
+}
+
+Slider.fn = Slider.prototype = {
+	constructor:Slider,
+	elementInit:function(){
+		var con = this.container,
+			num_all = this.num_all,
+			num_show = this.num_show,
+			_str = '';
+			
+		con.append('<div id="screen"><div class="lt"></div><div class="middle"></div><div class="rt"></div></div>\
+					<div id="outerBox">\
+						<i class="arrow lt"></i>\
+						<i class="arrow rt"></i>\
+        				<div id="innerBox">\
+							<ul></div>\
+						</div>\
+					</div>');
+		var $inner = $('#innerBox'),
+			$outer = $('#outerBox'),
+			$ul = $('#innerBox ul');
+		for(var i=0,l=num_all;i<l;i++){
+			_str += '<li class="eachPic" data-num="'+(i+1)+'">\
+						<a href="javascript:void(0)">'+(i+1)+'</a>\
+					</li>';
+		}
+		$ul.append(_str);
+		$ul.css({width:num_all*50+num_all*10+'px'});
+		$inner.css({width:num_show*50+(num_show)*10+'px'});
+		$outer.css({width:num_show*50+(num_show-1)*10+(35*2+10)+'px'});
+		$('#screen').css({width:num_show*50+(num_show-1)*10+(35*2+10)+10+'px'});
+	},
+	clickBind:function(){
+		var t = this;
+		this.loop();
+		$('#outerBox i.arrow').on('click',function(e){
+			var event = e||window.event;
+			event.target = event.target || event.srcElement;
+			if(event.target.className.match(/fobid/))return;
+			var default_left = parseInt($('#innerBox ul').css('left'),10) || 0;
+			if(event.target.className == 'arrow lt'){
+				$('#innerBox ul').animate({left:default_left + 60 + 'px'},function(){t.loop();});
+				t.threshold --;
+				t.direction = 'left';
+			}else if(event.target.className == 'arrow rt'){
+				$('#innerBox ul').animate({left:default_left - 60 + 'px'},function(){t.loop();});
+				t.threshold ++;
+				t.direction = 'right';
+			}
+		})
+	},
+	hoverBind:function(){
+		$('.eachPic').hover(function(){
+			$(this).addClass('green')
+		},function(){
+			$(this).removeClass('green')
+		})
+	},
+	fobidden:function(){
+		if(this.threshold == 0){
+			$('.arrow.lt').addClass('fobid');
+			$('.arrow.rt').removeClass('fobid');
+		}else if(this.threshold + this.num_show == this.num_all){
+			$('.arrow.rt').addClass('fobid');
+			$('.arrow.lt').removeClass('fobid');
+		}else{
+			$('.arrow.rt').removeClass('fobid');
+			$('.arrow.lt').removeClass('fobid');
+		}
+	},
+	loop:function(){
+		var default_left = parseInt($('#innerBox ul').css('left'),10) || 0;
+		if(this.threshold == 0){
+			$('#innerBox ul').prepend($('.eachPic:last-child').remove()).css({left:default_left - 60 + 'px'});
+		}else{
+			if(this.direction == 'left'){
+				$('#innerBox ul').prepend($('.eachPic:last-child').remove()).css({left:default_left - 60 + 'px'});
+			}else{				
+				$('#innerBox ul').append($('.eachPic:first-child').remove()).css({left:default_left + 60 + 'px'});
+			}
+		}
+	},
+	selectBind:function(){
+		var t = this;
+		$('.eachPic').each(function(){
+			$(this).on('click',function(){
+				$('#screen .middle').html(this.getAttribute('data-num'));
+				$('.eachPic').removeClass('on');
+				$(this).addClass('on');
+				t.nowSelect = parseInt(this.getAttribute('data-num'),10);
+			})
+		})
+	},
+	//选择方框
+	chooseBind:function(){
+		var t = this;
+		$('#screen .lt').on('click',function(e){
+			if(!typeof(t.nowSelect)=='number'){console.log('还没选择方框');return;}
+			$('.eachPic').each(function(i){
+				if(this.getAttribute('data-num') == (t.nowSelect-1)){
+					$(this).trigger('click');
+					return false;
+				}
+			})
+		});
+		$('#screen .rt').on('click',function(e){
+			if(!typeof(t.nowSelect)=='number'){console.log('还没选择方框');return;}
+			$('.eachPic').each(function(i){
+				if(this.getAttribute('data-num') == (t.nowSelect+1)){
+					$(this).trigger('click');
+					return false;
+				}
+			})
+		});
+	},
+	zoomBind:function(){
+		var t = this;
+		t.allScreen = false;
+		var d_w = $('#screen').css('width'),
+			d_h = $('#screen').css('height');
+		$('#screen .middle').click(function(){
+			if(t.allScreen == false){
+				$('#screen').css({width:window.screen.width+'px',position:'absolute',height:window.screen.height+'px',left:0,top:0});
+				t.allScreen = true;
+			}else{
+				$('#screen').css({width:d_w,position:'static',height:d_h,left:0,top:0});
+				t.allScreen = false;
+			}
+		})
+	},
+	init:function(){
+		this.elementInit();
+		this.clickBind();
+		this.hoverBind();
+		this.selectBind();
+		this.chooseBind();
+		this.zoomBind();
+	}
+}
+new Slider('gallery',10,3);
+</script>
+</body>
+</html>

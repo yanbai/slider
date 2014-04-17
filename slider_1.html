@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<style>
+body,h1,h2,h3,h4,h5,h6,p,form,ul,ol,li,dt,dl,dd,th,td,label,bottom,input,textarea{ margin:0;padding:0;}
+#gallery{
+	padding:20px;
+}
+#outerBox{
+	border:1px solid #000;
+	padding:10px 5px;
+	position:relative;
+}
+.arrow{
+	display:inline-block;
+	background:#000;
+	width:20px;
+	height:20px;
+	position:absolute;
+	cursor:pointer;
+}
+.arrow.fobid{
+	background:#999;
+}
+.arrow.lt{
+	left:5px;
+	top:30px;
+}
+.arrow.rt{
+	right:5px;
+	top:30px;
+}
+#innerBox{
+	border:1px solid #000;
+	padding:5px 0;
+	overflow:hidden;
+	position:relative;
+	height:50px;
+	left:35px;
+}
+#innerBox ul{
+	position:absolute;
+	left:5px;
+}
+#innerBox ul:after{content:"\20"; display:block; clear:both; height:0}
+#innerBox ul:after{*zoom:1}
+.eachPic a{
+	background:red;
+	display:inline-block;
+	width:50px;
+	height:50px;
+}
+.eachPic.green a{
+	background:green;
+}
+.eachPic{
+	float:left;
+	display:inline;
+	margin-right:10px;
+}
+.eachPic:last-child{
+	margin-right:0;
+}
+</style>
+</head>
+
+<body>
+<div id="gallery">
+</div>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>
+//m为总共的方框数，n为可显示的方框数
+var Slider = function(containerID,m,n){
+	if(n>m){console.log('显示的方框数不可以大于总数！！');return false;}
+	this.container = $('#'+containerID);
+	this.num_all = m;
+	this.num_show = n;
+	this.threshold = 0;
+	this.init();
+}
+
+Slider.fn = Slider.prototype = {
+	constructor:Slider,
+	elementInit:function(){
+		var con = this.container,
+			num_all = this.num_all,
+			num_show = this.num_show,
+			_str = '';
+			
+		con.append('<div id="outerBox">\
+						<i class="arrow lt"></i>\
+						<i class="arrow rt"></i>\
+        				<div id="innerBox">\
+							<ul></div>\
+						</div>\
+					</div>');
+		var $inner = $('#innerBox'),
+			$outer = $('#outerBox'),
+			$ul = $('#innerBox ul');
+		for(var i=0,l=num_all;i<l;i++){
+			_str += '<li class="eachPic">\
+						<a href=""></a>\
+					</li>';
+		}
+		$ul.append(_str);
+		$ul.css({width:num_all*50+num_all*10+'px'});
+		$inner.css({width:num_show*50+(num_show)*10+'px'});
+		$outer.css({width:num_show*50+(num_show-1)*10+(35*2+10)+'px'});
+	},
+	clickBind:function(){
+		var t = this;
+		this.fobidden();
+		$('#outerBox i.arrow').on('click',function(e){
+			var event = e||window.event;
+			event.target = event.target || event.srcElement;
+			if(event.target.className.match(/fobid/))return;
+			var default_left = parseInt($('#innerBox ul').css('left'),10) || 0;
+			if(event.target.className == 'arrow lt'){
+				$('#innerBox ul').animate({left:default_left + 60 + 'px'});
+				t.threshold --;
+			}else if(event.target.className == 'arrow rt'){
+				$('#innerBox ul').animate({left:default_left - 60 + 'px'});
+				t.threshold ++;
+			}
+			t.fobidden();
+		})
+	},
+	hoverBind:function(){
+		$('.eachPic').hover(function(){
+			$(this).addClass('green')
+		},function(){
+			$(this).removeClass('green')
+		})
+	},
+	fobidden:function(){
+		if(this.threshold == 0){
+			$('.arrow.lt').addClass('fobid');
+			$('.arrow.rt').removeClass('fobid');
+		}else if(this.threshold + this.num_show == this.num_all){
+			$('.arrow.rt').addClass('fobid');
+			$('.arrow.lt').removeClass('fobid');
+		}else{
+			$('.arrow.rt').removeClass('fobid');
+			$('.arrow.lt').removeClass('fobid');
+		}
+	},
+	init:function(){
+		this.elementInit();
+		this.clickBind();
+		this.hoverBind();
+	}
+}
+new Slider('gallery',10,3);
+</script>
+</body>
+</html>
