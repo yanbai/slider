@@ -116,6 +116,7 @@ Slider.fn = Slider.prototype = {
 			var event = e||window.event;
 			event.target = event.target || event.srcElement;
 			if(event.target.className.match(/fobid/))return;
+			$('#innerBox ul').stop(true,true);
 			var default_left = parseInt($('#innerBox ul').css('left'),10) || 0;
 			if(event.target.className == 'arrow lt'){
 				$('#innerBox ul').animate({left:default_left + 60 + 'px'});

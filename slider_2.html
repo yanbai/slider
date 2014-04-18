@@ -147,6 +147,7 @@ Slider.fn = Slider.prototype = {
 			var event = e||window.event;
 			event.target = event.target || event.srcElement;
 			if(event.target.className.match(/fobid/))return;
+			$('#innerBox ul').stop(true,true);
 			var default_left = parseInt($('#innerBox ul').css('left'),10) || 0;
 			if(event.target.className == 'arrow lt'){
 				$('#innerBox ul').animate({left:default_left + 60 + 'px'},function(){t.loop();});
@@ -160,11 +161,12 @@ Slider.fn = Slider.prototype = {
 		})
 	},
 	hoverBind:function(){
-		$('.eachPic').hover(function(){
+		$('body').delegate('.eachPic','mouseenter',function(){
 			$(this).addClass('green')
-		},function(){
+		});
+		$('body').delegate('.eachPic','mouseleave',function(){
 			$(this).removeClass('green')
-		})
+		});
 	},
 	fobidden:function(){
 		if(this.threshold == 0){
@@ -192,22 +194,21 @@ Slider.fn = Slider.prototype = {
 	},
 	selectBind:function(){
 		var t = this;
-		$('.eachPic').each(function(){
-			$(this).on('click',function(){
-				$('#screen .middle').html(this.getAttribute('data-num'));
-				$('.eachPic').removeClass('on');
-				$(this).addClass('on');
-				t.nowSelect = parseInt(this.getAttribute('data-num'),10);
-			})
-		})
+		$('body').delegate('.eachPic','click',function(){
+			$('#screen .middle').html(this.getAttribute('data-num'));
+			$('.eachPic').removeClass('on');
+			$(this).addClass('on');
+			t.nowSelect = parseInt(this.getAttribute('data-num'),10);
+		});
 	},
 	//选择方框
 	chooseBind:function(){
 		var t = this;
 		$('#screen .lt').on('click',function(e){
 			if(!typeof(t.nowSelect)=='number'){console.log('还没选择方框');return;}
+			var new_num = t.nowSelect === 1 ? 10 : t.nowSelect-1;
 			$('.eachPic').each(function(i){
-				if(this.getAttribute('data-num') == (t.nowSelect-1)){
+				if(this.getAttribute('data-num') == new_num){
 					$(this).trigger('click');
 					return false;
 				}
@@ -215,8 +216,9 @@ Slider.fn = Slider.prototype = {
 		});
 		$('#screen .rt').on('click',function(e){
 			if(!typeof(t.nowSelect)=='number'){console.log('还没选择方框');return;}
+			var new_num = t.nowSelect === 10 ? 1 : t.nowSelect+1;
 			$('.eachPic').each(function(i){
-				if(this.getAttribute('data-num') == (t.nowSelect+1)){
+				if(this.getAttribute('data-num') == new_num){
 					$(this).trigger('click');
 					return false;
 				}
